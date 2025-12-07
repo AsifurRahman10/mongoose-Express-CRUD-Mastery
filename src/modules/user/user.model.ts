@@ -1,5 +1,7 @@
 import { model, Schema } from 'mongoose'
-import { TUser } from './student.interface.js'
+import { TUser } from './user.interface.js'
+import bcrypt from 'bcrypt'
+import dotEnv from '../../config/index.js'
 
 const nameSchema = new Schema({
   fullName: {
@@ -35,6 +37,7 @@ const userSchema = new Schema<TUser>({
   password: {
     type: String,
     required: true,
+    select: false,
   },
   fullName: nameSchema,
   age: {
@@ -57,5 +60,23 @@ const userSchema = new Schema<TUser>({
     type: [orderSchema],
   },
 })
+
+userSchema.pre('save', async function (this: any) {
+  if (typeof this.isModified === 'function' && !this.isModified('password'))
+    return
+
+  const saltRounds = Number(
+    process.env.BCRYPT_SALT_ROUNDS ?? dotEnv?.bcrypt_salt_rounds ?? 10
+  )
+  this.password = await bcrypt.hash(this.password, saltRounds)
+})
+function removeSensitive(doc: any, ret: any) {
+  delete ret.password
+  delete ret.__v
+  return ret
+}
+
+userSchema.set('toJSON', { transform: removeSensitive })
+userSchema.set('toObject', { transform: removeSensitive })
 
 export const User = model('User', userSchema)

@@ -1,6 +1,6 @@
 import Joi from 'joi'
 
-const userValidation = Joi.object({
+const userValidationSchema = Joi.object({
   username: Joi.string().alphanum().required().messages({
     'string.base': 'Username must be a string',
     'string.alphanum': 'Username can only contain letters and numbers',
@@ -95,4 +95,4 @@ const userValidation = Joi.object({
     }),
 })
 
-export default userValidation
+export default userValidationSchema
