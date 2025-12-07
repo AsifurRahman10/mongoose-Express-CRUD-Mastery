@@ -26,3 +26,13 @@ export const getSingleUserService = async (id: string) => {
   const user = await User.findById(id)
   return user
 }
+
+export const updateUserService = async (id: string, payload: TUser) => {
+  const updated = await User.findByIdAndUpdate(
+    id,
+    { $set: payload },
+    { new: true, runValidators: true }
+  )
+  if (!updated) return null
+  return updated.toObject()
+}

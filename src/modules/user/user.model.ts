@@ -1,64 +1,44 @@
-import { model, Schema } from 'mongoose'
-import { TUser } from './user.interface.js'
+import { Model, model, Schema } from 'mongoose'
+import { TUser, UserModal } from './user.interface.js'
 import bcrypt from 'bcrypt'
 import dotEnv from '../../config/index.js'
 
-const nameSchema = new Schema({
-  fullName: {
+const nameSchema = new Schema(
+  {
     firstName: { type: String },
     lastName: { type: String },
   },
-})
+  { _id: false }
+)
 
-const addressSchema = new Schema({
-  street: {
-    type: String,
+const addressSchema = new Schema(
+  {
+    street: { type: String },
+    city: { type: String },
+    country: { type: String },
   },
-  city: {
-    type: String,
-  },
-  country: {
-    type: String,
-  },
-})
+  { _id: false }
+)
 
-const orderSchema = new Schema({
-  productName: { type: String },
-  price: { type: Number },
-  quantity: { type: Number },
-})
+const orderSchema = new Schema(
+  {
+    productName: { type: String },
+    price: { type: Number },
+    quantity: { type: Number },
+  },
+  { _id: false }
+)
 
 const userSchema = new Schema<TUser>({
-  username: {
-    type: String,
-    required: true,
-    unique: true,
-  },
-  password: {
-    type: String,
-    required: true,
-    select: false,
-  },
+  username: { type: String, required: true, unique: true },
+  password: { type: String, required: true, select: false },
   fullName: nameSchema,
-  age: {
-    type: Number,
-  },
-  email: {
-    type: String,
-    required: true,
-    unique: true,
-  },
-  isActive: {
-    type: Boolean,
-    required: true,
-  },
-  hobbies: {
-    type: [String],
-  },
+  age: Number,
+  email: { type: String, required: true, unique: true },
+  isActive: { type: Boolean, required: true },
+  hobbies: [String],
   address: addressSchema,
-  orders: {
-    type: [orderSchema],
-  },
+  orders: [orderSchema],
 })
 
 userSchema.pre('save', async function (this: any) {
@@ -79,4 +59,8 @@ function removeSensitive(doc: any, ret: any) {
 userSchema.set('toJSON', { transform: removeSensitive })
 userSchema.set('toObject', { transform: removeSensitive })
 
-export const User = model('User', userSchema)
+userSchema.statics.existsById = async function (id: string) {
+  return !!(await this.exists({ _id: id }))
+}
+
+export const User = model<TUser, UserModal>('User', userSchema)

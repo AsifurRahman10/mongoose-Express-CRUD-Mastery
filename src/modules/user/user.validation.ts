@@ -1,6 +1,6 @@
 import Joi from 'joi'
 
-const userValidationSchema = Joi.object({
+export const userValidationSchema = Joi.object({
   username: Joi.string().alphanum().required().messages({
     'string.base': 'Username must be a string',
     'string.alphanum': 'Username can only contain letters and numbers',
@@ -95,4 +95,21 @@ const userValidationSchema = Joi.object({
     }),
 })
 
-export default userValidationSchema
+export const updateUserSchema = Joi.object({
+  username: Joi.string().alphanum().optional(),
+  password: Joi.forbidden(), // don't allow changing password here; create a separate endpoint for password change
+  fullName: Joi.object({
+    firstName: Joi.string().optional(),
+    lastName: Joi.string().optional(),
+  }).optional(),
+  age: Joi.number().integer().min(0).optional(),
+  email: Joi.string().email().optional(),
+  isActive: Joi.boolean().optional(),
+  hobbies: Joi.array().items(Joi.string()).optional(),
+  address: Joi.object({
+    street: Joi.string().optional(),
+    city: Joi.string().optional(),
+    country: Joi.string().optional(),
+  }).optional(),
+  // orders omitted for updates or allow as needed
+}).min(1)

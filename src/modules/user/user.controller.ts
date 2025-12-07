@@ -3,9 +3,11 @@ import {
   getAllUserService,
   getSingleUserService,
   isUserExistService,
+  updateUserService,
 } from './user.service.js'
 import { Request, Response } from 'express'
-import userValidationSchema from './user.validation.js'
+import { userValidationSchema, updateUserSchema } from './user.validation.js'
+import { User } from './user.model.js'
 
 export const createUser = async (req: Request, res: Response) => {
   try {
@@ -78,5 +80,46 @@ export const getSingleUser = async (req: Request, res: Response) => {
     return res
       .status(500)
       .json({ success: false, message: 'Internal server error' })
+  }
+}
+
+export const updateUserInfo = async (req: Request, res: Response) => {
+  const { id } = req.params
+  console.log(id)
+  if (!id) {
+    return res.status(500).json({
+      success: false,
+      message: 'Id is required',
+    })
+  }
+
+  try {
+    const { error, value } = updateUserSchema.validate(req.body, {
+      abortEarly: false,
+      stripUnknown: true,
+    })
+    if (error) {
+      return res.status(400).json({
+        success: false,
+        message: 'Validation error',
+        errors: error.details.map((d) => d.message),
+      })
+    }
+    const exists = await User.existsById(id)
+    if (!exists) {
+      return res.status(404).json({
+        success: false,
+        message: 'User not found',
+      })
+    }
+    const updatedUser = await updateUserService(id, value)
+
+    return res.status(200).json({
+      success: true,
+      message: 'User updated successfully!',
+      data: updatedUser,
+    })
+  } catch (error) {
+    console.log(error)
   }
 }

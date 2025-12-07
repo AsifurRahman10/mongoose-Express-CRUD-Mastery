@@ -1,3 +1,5 @@
+import { Model } from 'mongoose'
+
 export type TUser = {
   username: string
   password: string
@@ -25,4 +27,8 @@ export interface TOrder {
   productName: string
   price: number
   quantity: number
+}
+
+export interface UserModal extends Model<TUser> {
+  existsById(id: string): Promise<TUser | null>
 }
