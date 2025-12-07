@@ -1,4 +1,9 @@
-import { createUserService, isUserExistService } from './user.service.js'
+import {
+  createUserService,
+  getAllUserService,
+  getSingleUserService,
+  isUserExistService,
+} from './user.service.js'
 import { Request, Response } from 'express'
 import userValidationSchema from './user.validation.js'
 
@@ -39,5 +44,39 @@ export const createUser = async (req: Request, res: Response) => {
       success: false,
       message: error.message || 'Something went wrong',
     })
+  }
+}
+
+export const getAllUser = async (req: Request, res: Response) => {
+  const allUser = await getAllUserService()
+  return res.status(201).json({
+    success: true,
+    message: 'All User retrieve successfully',
+    data: allUser,
+  })
+}
+
+export const getSingleUser = async (req: Request, res: Response) => {
+  const { id } = req.params
+  if (!id) {
+    return res.status(500).json({
+      success: false,
+      message: 'Id is required',
+    })
+  }
+  try {
+    const user = await getSingleUserService(id)
+    if (!user) {
+      return res.status(404).json({ success: false, message: 'User not found' })
+    }
+    return res.status(201).json({
+      success: true,
+      message: 'User retrieve successfully',
+      data: user,
+    })
+  } catch (error) {
+    return res
+      .status(500)
+      .json({ success: false, message: 'Internal server error' })
   }
 }

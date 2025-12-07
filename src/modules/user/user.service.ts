@@ -16,3 +16,13 @@ export const createUserService = async (userData: TUser) => {
     throw error
   }
 }
+
+export const getAllUserService = async () => {
+  const users = await User.find()
+  return users
+}
+
+export const getSingleUserService = async (id: string) => {
+  const user = await User.findById(id)
+  return user
+}
