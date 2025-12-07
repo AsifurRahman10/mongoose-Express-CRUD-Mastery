@@ -36,3 +36,8 @@ export const updateUserService = async (id: string, payload: TUser) => {
   if (!updated) return null
   return updated.toObject()
 }
+
+export const deleteUserService = async (id: string) => {
+  const data = User.deleteOne({ _id: id })
+  return true
+}

@@ -1,5 +1,6 @@
 import {
   createUserService,
+  deleteUserService,
   getAllUserService,
   getSingleUserService,
   isUserExistService,
@@ -85,7 +86,6 @@ export const getSingleUser = async (req: Request, res: Response) => {
 
 export const updateUserInfo = async (req: Request, res: Response) => {
   const { id } = req.params
-  console.log(id)
   if (!id) {
     return res.status(500).json({
       success: false,
@@ -121,5 +121,37 @@ export const updateUserInfo = async (req: Request, res: Response) => {
     })
   } catch (error) {
     console.log(error)
+  }
+}
+
+export const deleteUser = async (req: Request, res: Response) => {
+  const { id } = req.params
+  if (!id) {
+    return res.status(500).json({
+      success: false,
+      message: 'Id is required',
+    })
+  }
+
+  try {
+    const exists = await User.existsById(id)
+    if (!exists) {
+      return res.status(404).json({
+        success: false,
+        message: 'User not found',
+      })
+    }
+    const deleteUser = await deleteUserService(id)
+    if (deleteUser) {
+      return res.status(201).json({
+        success: true,
+        message: 'User deleted successfully!',
+        data: null,
+      })
+    }
+  } catch (error) {
+    return res
+      .status(500)
+      .json({ success: false, message: 'Internal server error' })
   }
 }
